@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الذكاء الرياضية - متوسط</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="game.js" defer></script>
+</head>
+<body onload="startGame('medium')">
+    <div id="game-container">
+        <h1>مستوى متوسط</h1>
+        <p id="score">النقاط: <span id="score-value">100</span></p>
+        <p id="timer">الوقت المتبقي: <span id="time">20</span> ثانية</p>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="أدخل الإجابة">
+        <button onclick="checkAnswer()">تحقق</button>
+    </div>
+</body>
+</html>

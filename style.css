@@ -1,0 +1,149 @@
+/* إعادة تصميم الصفحة */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to right, #000000, #333333);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+    color: #fff;
+}
+
+/* تصميم العنوان */
+h1 {
+    font-size: 36px;
+    margin-bottom: 20px;
+    font-weight: bold;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* أزرار القائمة الرئيسية */
+#menu button {
+    margin: 10px;
+    padding: 12px 25px;
+    font-size: 20px;
+    background-color: #ff5722;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+#menu button:hover {
+    background-color: #e64a19;
+    transform: scale(1.1);
+    box-shadow: 0 8px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* تصميم واجهة اللعبة */
+#game-container {
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    width: 350px;
+    animation: slideIn 0.5s ease-out;
+}
+
+/* تأثير الأنيميشن على ظهور واجهة اللعبة */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* أنيميشن للحركات عند التفاعل مع المدخلات */
+input, button {
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 8px;
+    border: none;
+    margin-top: 15px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input:focus, button:focus {
+    box-shadow: 0 0 10px rgba(255, 87, 34, 0.8);
+}
+
+/* زر "تحقق" */
+button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+button:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* عرض الوقت والنقاط */
+#score, #time {
+    font-size: 20px;
+    margin-top: 15px;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* تحسين العرض لصفحة البداية */
+#main-container {
+    text-align: center;
+    font-size: 20px;
+}
+
+/* خلفية متحركة للصفحة */
+@keyframes backgroundMove {
+    0% {
+        background-position: 0 0;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+body {
+    animation: backgroundMove 10s linear infinite;
+}
+
+/* تصميم المربع الذي يظهر فيه السؤال */
+#question {
+    font-size: 22px;
+    margin-bottom: 20px;
+    color: #fff;
+    font-weight: bold;
+}
+
+/* تصميم المدخلات */
+input {
+    font-size: 18px;
+    width: 80%;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 10px;
+    border: 1px solid #555;
+    text-align: center;
+}
+
+/* تأثير على المدخلات أثناء الكتابة */
+input:focus {
+    border: 2px solid #ff5722;
+}
+
+/* تأثير عند الفشل في الإجابة */
+#failed {
+    color: red;
+    font-size: 18px;
+    margin-top: 15px;
+}
