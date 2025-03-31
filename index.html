@@ -1,60 +1,109 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة ورق-حجر-مقص مع شات جينيتي</title>
+    <title>لعبة ورق-حجر-مقص</title>
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            background-color: #f4f4f4;
+            background-color: #222;
+            color: white;
+            margin: 0;
+            padding: 20px;
         }
-        .choices {
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background: #333;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .choices, .mode-selection {
             margin: 20px;
         }
-        .choice {
+        .choice, .mode {
             font-size: 20px;
             padding: 10px 20px;
-            margin: 5px;
+            margin: 10px;
             cursor: pointer;
             border: none;
             border-radius: 5px;
             background-color: #007bff;
             color: white;
+            transition: transform 0.2s ease-in-out;
         }
-        .choice:hover {
+        .choice:hover, .mode:hover {
             background-color: #0056b3;
+            transform: scale(1.1);
         }
         .result {
             margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
         }
+        input {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: none;
+            width: 80%;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <h1>لعبة ورق-حجر-مقص مع شات جينيتي</h1>
-    <div class="choices">
-        <button class="choice" onclick="playGame('ورق')">📄 ورق</button>
-        <button class="choice" onclick="playGame('حجر')">🪨 حجر</button>
-        <button class="choice" onclick="playGame('مقص')">✂️ مقص</button>
-        <button class="choice" onclick="playGame('اللعبة مع شات جينيتي')">🤖 اللعبة مع شات جينيتي</button>
+    <div class="container">
+        <h1>لعبة ورق-حجر-مقص</h1>
+        <input type="text" id="playerName" placeholder="أدخل اسمك الوهمي">
+        <div class="mode-selection">
+            <button class="mode" onclick="startGame('single')">لعب فردي</button>
+            <button class="mode" onclick="startGame('multi')">لعب جماعي</button>
+        </div>
+        <div class="choices" id="choices" style="display:none;">
+            <button class="choice" onclick="playGame('ورق')">📄 ورق</button>
+            <button class="choice" onclick="playGame('حجر')">🪨 حجر</button>
+            <button class="choice" onclick="playGame('مقص')">✂️ مقص</button>
+        </div>
+        <p class="result" id="result">اختر نمط اللعب!</p>
     </div>
-    <p class="result" id="result">اختر خيارًا للعب!</p>
+    
     <script>
-        function playGame(playerChoice) {
-            const choices = ['ورق', 'حجر', 'مقص'];
-            let computerChoice;
-            
-            if (playerChoice === 'اللعبة مع شات جينيتي') {
-                document.getElementById('result').textContent = '🔥 هيا لنلعب! اختر: ورق، حجر، أو مقص.';
+        let gameMode = "single";
+        const socket = io();
+
+        function startGame(mode) {
+            const name = document.getElementById("playerName").value.trim();
+            if (!name) {
+                alert("يرجى إدخال اسم وهمي للمتابعة!");
                 return;
             }
-            
-            computerChoice = choices[Math.floor(Math.random() * choices.length)];
-            let result = '';
-            
+            gameMode = mode;
+            document.getElementById("choices").style.display = "block";
+            document.getElementById("result").textContent = "اختر ورق أو حجر أو مقص!";
+        }
+
+        function playGame(choice) {
+            if (gameMode === "single") {
+                playAgainstComputer(choice);
+            } else {
+                socket.emit("playerMove", { choice });
+                document.getElementById('result').textContent = "تم إرسال اختيارك، انتظر النتيجة...";
+            }
+        }
+
+        function playAgainstComputer(playerChoice) {
+            const choices = ['ورق', 'حجر', 'مقص'];
+            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = "";
             if (playerChoice === computerChoice) {
                 result = '🤝 تعادل!';
             } else if (
@@ -66,9 +115,12 @@
             } else {
                 result = '😢 خسرت!';
             }
-            
-            document.getElementById('result').textContent = `أنت اخترت: ${playerChoice} | أنا اخترت: ${computerChoice} → ${result}`;
+            document.getElementById('result').textContent = `أنت اخترت: ${playerChoice} | الحاسوب اختار: ${computerChoice} → ${result}`;
         }
+
+        socket.on("gameResult", (result) => {
+            document.getElementById('result').textContent = result;
+        });
     </script>
 </body>
 </html>
