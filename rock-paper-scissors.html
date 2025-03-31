@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ورق-حجر-مقص مع شات جينيتي</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+        }
+        .choices {
+            margin: 20px;
+        }
+        .choice {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+        }
+        .choice:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>لعبة ورق-حجر-مقص مع شات جينيتي</h1>
+    <div class="choices">
+        <button class="choice" onclick="playGame('ورق')">📄 ورق</button>
+        <button class="choice" onclick="playGame('حجر')">🪨 حجر</button>
+        <button class="choice" onclick="playGame('مقص')">✂️ مقص</button>
+        <button class="choice" onclick="playGame('اللعبة مع شات جينيتي')">🤖 اللعبة مع شات جينيتي</button>
+    </div>
+    <p class="result" id="result">اختر خيارًا للعب!</p>
+    <script>
+        function playGame(playerChoice) {
+            const choices = ['ورق', 'حجر', 'مقص'];
+            let computerChoice;
+            
+            if (playerChoice === 'اللعبة مع شات جينيتي') {
+                document.getElementById('result').textContent = '🔥 هيا لنلعب! اختر: ورق، حجر، أو مقص.';
+                return;
+            }
+            
+            computerChoice = choices[Math.floor(Math.random() * choices.length)];
+            let result = '';
+            
+            if (playerChoice === computerChoice) {
+                result = '🤝 تعادل!';
+            } else if (
+                (playerChoice === 'ورق' && computerChoice === 'حجر') ||
+                (playerChoice === 'حجر' && computerChoice === 'مقص') ||
+                (playerChoice === 'مقص' && computerChoice === 'ورق')
+            ) {
+                result = '🎉 فزت!';
+            } else {
+                result = '😢 خسرت!';
+            }
+            
+            document.getElementById('result').textContent = `أنت اخترت: ${playerChoice} | أنا اخترت: ${computerChoice} → ${result}`;
+        }
+    </script>
+</body>
+</html>
