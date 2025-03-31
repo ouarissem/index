@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لعبة ورق-حجر-مقص</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://rock-paper-server.onrender.com/socket.io/socket.io.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,8 +65,10 @@
         <h1>لعبة ورق-حجر-مقص</h1>
         <input type="text" id="playerName" placeholder="أدخل اسمك الوهمي">
         <div class="mode-selection">
-            <button class="mode" onclick="startGame('single')">لعب فردي</button>
-            <button class="mode" onclick="startGame('multi')">لعب جماعي</button>
+            <button class="mode" onclick="startSinglePlayer()">لعب فردي</button>
+            <button class="mode" onclick="createRoom()">إنشاء روم</button>
+            <input type="text" id="roomCode" placeholder="أدخل كود الروم">
+            <button class="mode" onclick="joinRoom()">دخول روم</button>
         </div>
         <div class="choices" id="choices" style="display:none;">
             <button class="choice" onclick="playGame('ورق')">📄 ورق</button>
@@ -78,17 +80,46 @@
     
     <script>
         let gameMode = "single";
-        const socket = io();
+        const socket = io("https://rock-paper-server.onrender.com");
 
-        function startGame(mode) {
+        function startSinglePlayer() {
             const name = document.getElementById("playerName").value.trim();
             if (!name) {
                 alert("يرجى إدخال اسم وهمي للمتابعة!");
                 return;
             }
-            gameMode = mode;
+            gameMode = "single";
             document.getElementById("choices").style.display = "block";
             document.getElementById("result").textContent = "اختر ورق أو حجر أو مقص!";
+        }
+
+        function createRoom() {
+            const name = document.getElementById("playerName").value.trim();
+            if (!name) {
+                alert("يرجى إدخال اسم وهمي!");
+                return;
+            }
+            const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+            alert(`تم إنشاء الروم! شارك هذا الكود مع صديقك: ${roomCode}`);
+            socket.emit("createRoom", { roomCode, name });
+            joinGame(roomCode);
+        }
+
+        function joinRoom() {
+            const name = document.getElementById("playerName").value.trim();
+            const roomCode = document.getElementById("roomCode").value.trim().toUpperCase();
+            if (!name || !roomCode) {
+                alert("يرجى إدخال اسمك وكود الروم!");
+                return;
+            }
+            socket.emit("joinRoom", { roomCode, name });
+            joinGame(roomCode);
+        }
+
+        function joinGame(roomCode) {
+            gameMode = "multi";
+            document.getElementById("choices").style.display = "block";
+            document.getElementById("result").textContent = `تم الانضمام إلى الروم: ${roomCode}`;
         }
 
         function playGame(choice) {
