@@ -1,157 +1,132 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة ورق-حجر-مقص</title>
-    <script src="https://rock-paper-server.onrender.com/socket.io/socket.io.js"></script>
+    <title>لعبة الذكاء الرياضية</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Poppins', sans-serif;
             text-align: center;
-            background-color: #222;
-            color: white;
-            margin: 0;
-            padding: 20px;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            padding: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        .container {
-            max-width: 400px;
-            margin: auto;
-            padding: 20px;
-            background: #333;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+        #game-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             animation: fadeIn 1s ease-in-out;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
-        .choices, .mode-selection {
-            margin: 20px;
-        }
-        .choice, .mode {
-            font-size: 20px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
+        input, select, button {
+            padding: 12px;
+            font-size: 18px;
+            margin-top: 10px;
+            border-radius: 8px;
             border: none;
-            border-radius: 5px;
-            background-color: #007bff;
+            outline: none;
+        }
+        button {
+            background: #ff758c;
             color: white;
-            transition: transform 0.2s ease-in-out;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
-        .choice:hover, .mode:hover {
-            background-color: #0056b3;
-            transform: scale(1.1);
+        button:hover {
+            background: #ff5252;
         }
-        .result {
-            margin-top: 20px;
-            font-size: 24px;
+        #timer {
+            font-size: 22px;
+            color: red;
             font-weight: bold;
         }
-        input {
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            border: none;
-            width: 80%;
-            text-align: center;
+        select {
+            background: #f4f4f4;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>لعبة ورق-حجر-مقص</h1>
-        <input type="text" id="playerName" placeholder="أدخل اسمك الوهمي">
-        <div class="mode-selection">
-            <button class="mode" onclick="startSinglePlayer()">لعب فردي</button>
-            <button class="mode" onclick="createRoom()">إنشاء روم</button>
-            <input type="text" id="roomCode" placeholder="أدخل كود الروم">
-            <button class="mode" onclick="joinRoom()">دخول روم</button>
-        </div>
-        <div class="choices" id="choices" style="display:none;">
-            <button class="choice" onclick="playGame('ورق')">📄 ورق</button>
-            <button class="choice" onclick="playGame('حجر')">🪨 حجر</button>
-            <button class="choice" onclick="playGame('مقص')">✂️ مقص</button>
-        </div>
-        <p class="result" id="result">اختر نمط اللعب!</p>
+    <div id="game-container">
+        <h1>لعبة الذكاء الرياضية</h1>
+        <label for="difficulty">اختر مستوى الصعوبة:</label>
+        <select id="difficulty" onchange="setDifficulty()">
+            <option value="30">سهل (30 ثانية)</option>
+            <option value="20">متوسط (20 ثانية)</option>
+            <option value="10">صعب (10 ثواني)</option>
+        </select>
+        <p id="question"></p>
+        <input type="number" id="answer" placeholder="أدخل الإجابة">
+        <button onclick="checkAnswer()">تحقق</button>
+        <p id="result"></p>
+        <p id="timer">الوقت: <span id="time">30</span> ثانية</p>
     </div>
-    
+
     <script>
-        let gameMode = "single";
-        const socket = io("https://rock-paper-server.onrender.com");
+        let num1, num2, operator, correctAnswer;
+        let timeLeft = 30;
+        let timer;
 
-        function startSinglePlayer() {
-            const name = document.getElementById("playerName").value.trim();
-            if (!name) {
-                alert("يرجى إدخال اسم وهمي للمتابعة!");
-                return;
+        function setDifficulty() {
+            timeLeft = parseInt(document.getElementById('difficulty').value);
+            document.getElementById('time').innerText = timeLeft;
+            generateQuestion();
+        }
+
+        function generateQuestion() {
+            num1 = Math.floor(Math.random() * 10) + 1;
+            num2 = Math.floor(Math.random() * 10) + 1;
+            let operators = ['+', '-', '*', '/'];
+            operator = operators[Math.floor(Math.random() * operators.length)];
+            
+            if (operator === '/') {
+                num1 = num1 * num2;
             }
-            gameMode = "single";
-            document.getElementById("choices").style.display = "block";
-            document.getElementById("result").textContent = "اختر ورق أو حجر أو مقص!";
+            
+            correctAnswer = eval(`${num1} ${operator} ${num2}`);
+            document.getElementById('question').innerText = `${num1} ${operator} ${num2} = ؟`;
+            document.getElementById('answer').value = '';
+            startTimer();
         }
 
-        function createRoom() {
-            const name = document.getElementById("playerName").value.trim();
-            if (!name) {
-                alert("يرجى إدخال اسم وهمي!");
-                return;
-            }
-            const roomCode = Math.random().toString(36).substr(2, 6).toUpperCase();
-            alert(`تم إنشاء الروم! شارك هذا الكود مع صديقك: ${roomCode}`);
-            socket.emit("createRoom", { roomCode, name });
-            joinGame(roomCode);
-        }
-
-        function joinRoom() {
-            const name = document.getElementById("playerName").value.trim();
-            const roomCode = document.getElementById("roomCode").value.trim().toUpperCase();
-            if (!name || !roomCode) {
-                alert("يرجى إدخال اسمك وكود الروم!");
-                return;
-            }
-            socket.emit("joinRoom", { roomCode, name });
-            joinGame(roomCode);
-        }
-
-        function joinGame(roomCode) {
-            gameMode = "multi";
-            document.getElementById("choices").style.display = "block";
-            document.getElementById("result").textContent = `تم الانضمام إلى الروم: ${roomCode}`;
-        }
-
-        function playGame(choice) {
-            if (gameMode === "single") {
-                playAgainstComputer(choice);
+        function checkAnswer() {
+            let userAnswer = parseFloat(document.getElementById('answer').value);
+            if (userAnswer === correctAnswer) {
+                document.getElementById('result').innerText = 'إجابة صحيحة! 🎉';
+                clearInterval(timer);
+                setTimeout(generateQuestion, 1000);
             } else {
-                socket.emit("playerMove", { choice });
-                document.getElementById('result').textContent = "تم إرسال اختيارك، انتظر النتيجة...";
+                document.getElementById('result').innerText = 'إجابة خاطئة! ❌';
             }
         }
 
-        function playAgainstComputer(playerChoice) {
-            const choices = ['ورق', 'حجر', 'مقص'];
-            const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-            let result = "";
-            if (playerChoice === computerChoice) {
-                result = '🤝 تعادل!';
-            } else if (
-                (playerChoice === 'ورق' && computerChoice === 'حجر') ||
-                (playerChoice === 'حجر' && computerChoice === 'مقص') ||
-                (playerChoice === 'مقص' && computerChoice === 'ورق')
-            ) {
-                result = '🎉 فزت!';
-            } else {
-                result = '😢 خسرت!';
-            }
-            document.getElementById('result').textContent = `أنت اخترت: ${playerChoice} | الحاسوب اختار: ${computerChoice} → ${result}`;
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = parseInt(document.getElementById('difficulty').value);
+            document.getElementById('time').innerText = timeLeft;
+            timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('time').innerText = timeLeft;
+                if (timeLeft === 0) {
+                    clearInterval(timer);
+                    document.getElementById('result').innerText = 'انتهى الوقت! ⏳';
+                    setTimeout(generateQuestion, 1000);
+                }
+            }, 1000);
         }
 
-        socket.on("gameResult", (result) => {
-            document.getElementById('result').textContent = result;
-        });
+        setDifficulty();
     </script>
 </body>
 </html>
