@@ -1,2 +1,2 @@
-# rock-paper-scissors
-✅ لعبة الرياضيات لتقوي عضلات دماغك
+Math-game
+Math game to strengthen your brain muscles✅
